@@ -1,0 +1,64 @@
+{
+  "name": "Teal Clean",
+  "dataColors": ["#4FA3A5", "#2E6F73", "#9ED3D3", "#7A8A8F", "#1F3B40", "#C9E6E6", "#B0BBBF", "#6FBFBF"],
+  "foreground": "#1F2A2E",
+  "foregroundNeutralSecondary": "#5F6B70",
+  "foregroundNeutralTertiary": "#9AA5A9",
+  "background": "#FFFFFF",
+  "backgroundLight": "#F4F8F8",
+  "backgroundNeutral": "#E3EBEC",
+  "tableAccent": "#4FA3A5",
+  "good": "#4FA3A5",
+  "neutral": "#B0BBBF",
+  "bad": "#7A8A8F",
+  "maximum": "#2E6F73",
+  "center": "#9ED3D3",
+  "minimum": "#EAF5F5",
+  "textClasses": {
+    "title": { "fontFace": "Segoe UI Semibold", "fontSize": 11, "color": "#1F2A2E" },
+    "header": { "fontFace": "Segoe UI Semibold", "fontSize": 11, "color": "#1F2A2E" },
+    "label": { "fontFace": "Segoe UI", "fontSize": 9, "color": "#5F6B70" },
+    "callout": { "fontFace": "Segoe UI Semibold", "fontSize": 24, "color": "#4FA3A5" }
+  },
+  "visualStyles": {
+    "*": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 }],
+        "border": [{ "show": true, "color": { "solid": { "color": "#E3EBEC" } }, "radius": 10 }],
+        "dropShadow": [{ "show": false }],
+        "visualHeader": [{ "show": false }],
+        "title": [{ "show": true, "fontColor": { "solid": { "color": "#1F2A2E" } }, "fontSize": 11, "bold": true, "fontFamily": "Segoe UI Semibold" }],
+        "padding": [{ "top": 12, "bottom": 12, "left": 14, "right": 14 }]
+      }
+    },
+    "page": {
+      "*": {
+        "background": [{ "color": { "solid": { "color": "#FFFFFF" } }, "transparency": 0 }],
+        "outspace": [{ "color": { "solid": { "color": "#F4F8F8" } } }]
+      }
+    },
+    "slicer": {
+      "*": {
+        "background": [{ "show": true, "color": { "solid": { "color": "#F4F8F8" } }, "transparency": 0 }],
+        "border": [{ "show": false }]
+      }
+    },
+    "textbox": {
+      "*": {
+        "background": [{ "show": false }],
+        "border": [{ "show": false }]
+      }
+    },
+    "image": {
+      "*": {
+        "background": [{ "show": false }],
+        "border": [{ "show": false }]
+      }
+    },
+    "shape": {
+      "*": {
+        "border": [{ "show": false }]
+      }
+    }
+  }
+}

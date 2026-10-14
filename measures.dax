@@ -1,0 +1,117 @@
+// ============================================================
+// Online Food Ordering - DAX measures
+// Taruh semua measure di satu tabel kosong "_Measures"
+// (Home > Enter data > nama tabel _Measures > Load)
+// Semua measure default exclude baris duplikat (IsDuplicate = 1)
+// ============================================================
+
+// ---------- Base ----------
+Responses =
+CALCULATE ( COUNTROWS ( FactResponse ), FactResponse[IsDuplicate] = 0 )
+
+Order Again Count =
+CALCULATE ( [Responses], FactResponse[OrderAgain] = "Yes" )
+
+Positive Count =
+CALCULATE ( [Responses], FactResponse[Feedback] = "Positive" )
+
+Negative Count =
+CALCULATE ( [Responses], FactResponse[Feedback] = "Negative" )
+
+// ---------- Rates ----------
+Order Again Rate =
+DIVIDE ( [Order Again Count], [Responses] )
+
+Positive Rate =
+DIVIDE ( [Positive Count], [Responses] )
+
+Negative Rate =
+DIVIDE ( [Negative Count], [Responses] )
+
+// ---------- Benchmark vs overall ----------
+Overall Order Again Rate =
+CALCULATE ( [Order Again Rate], REMOVEFILTERS () )
+
+Overall Positive Rate =
+CALCULATE ( [Positive Rate], REMOVEFILTERS () )
+
+Order Again vs Avg (pp) =
+( [Order Again Rate] - [Overall Order Again Rate] ) * 100
+
+Positive vs Avg (pp) =
+( [Positive Rate] - [Overall Positive Rate] ) * 100
+
+// Dipakai buat conditional formatting warna bar (di atas / di bawah rata-rata)
+Order Again Color =
+IF ( [Order Again Rate] >= [Overall Order Again Rate], "#2E6F73", "#B0BBBF" )
+
+// ---------- Feedback x Order Again ----------
+Order Again Rate | Positive =
+CALCULATE ( [Order Again Rate], FactResponse[Feedback] = "Positive" )
+
+Order Again Rate | Negative =
+CALCULATE ( [Order Again Rate], FactResponse[Feedback] = "Negative" )
+
+Feedback Gap (pp) =
+( [Order Again Rate | Positive] - [Order Again Rate | Negative] ) * 100
+
+// Customer yang kasih feedback negatif tapi tetap order lagi
+Unhappy but Loyal =
+CALCULATE (
+    [Responses],
+    FactResponse[Feedback] = "Negative",
+    FactResponse[OrderAgain] = "Yes"
+)
+
+// Customer puas tapi tidak order lagi -> peluang win-back
+Happy but Lost =
+CALCULATE (
+    [Responses],
+    FactResponse[Feedback] = "Positive",
+    FactResponse[OrderAgain] = "No"
+)
+
+// ---------- Profile ----------
+Avg Age =
+CALCULATE ( AVERAGE ( FactResponse[Age] ), FactResponse[IsDuplicate] = 0 )
+
+Avg Family Size =
+CALCULATE ( AVERAGE ( FactResponse[FamilySize] ), FactResponse[IsDuplicate] = 0 )
+
+Share of Responses =
+DIVIDE ( [Responses], CALCULATE ( [Responses], REMOVEFILTERS () ) )
+
+// ---------- Ranking ----------
+Occupation Rank (Order Again) =
+IF (
+    HASONEVALUE ( DimOccupation[Occupation] ),
+    RANKX ( ALLSELECTED ( DimOccupation[Occupation] ), [Order Again Rate], , DESC, DENSE )
+)
+
+// Segmen dengan sample kecil (< 15 respon) ditandai biar insight-nya fair
+Low Sample Flag =
+IF ( [Responses] < 15, "Low sample", BLANK () )
+
+// ---------- Dynamic text buat card / subtitle ----------
+Headline Order Again =
+VAR r = [Order Again Rate]
+VAR diff = [Order Again vs Avg (pp)]
+RETURN
+    FORMAT ( r, "0.0%" ) & " order again ("
+        & IF ( diff >= 0, "+", "" ) & FORMAT ( diff, "0.0" ) & " pp vs avg)"
+
+Selected Segment Label =
+IF (
+    ISFILTERED ( DimOccupation[Occupation] ),
+    CONCATENATEX ( VALUES ( DimOccupation[Occupation] ), DimOccupation[Occupation], ", " ),
+    "All occupations"
+)
+
+// ============================================================
+// Field parameter (Modeling > New parameter > Fields)
+// Nama: Segment By
+// Isi: DimOccupation[Occupation], DimIncome[Monthly Income],
+//      DimMaritalStatus[Marital Status], DimEducation[Education],
+//      DimAgeGroup[Age Group], DimGender[Gender], FactResponse[FamilySize]
+// Pakai di axis bar chart "Order Again Rate by <segment>" + slicer-nya
+// ============================================================
