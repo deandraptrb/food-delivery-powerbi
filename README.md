@@ -69,7 +69,7 @@ Poin 4 sampai 6 kemungkinan menggambarkan segmen yang sama: orang yang sudah ker
 
 | File | Isi |
 |---|---|
-| `Customer.pbix` | Dashboard Power BI |
+| `food-delivery.pbix` | Dashboard Power BI |
 | `data/online food delivery dataset.csv` | Raw data dari Kaggle, belum dibersihkan |
 | `build.py` | Script Python (pandas) untuk cleaning dan bikin star schema |
 | `online_food_model.xlsx` | Data yang sudah dibersihkan, dalam bentuk star schema |
