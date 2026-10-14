@@ -1,9 +1,9 @@
 # Who Orders Again? Online Food Delivery Customer Analysis
 
-Power BI dashboard yang menganalisis survey customer online food delivery di Bengaluru untuk menjawab satu pertanyaan bisnis: **segmen customer mana yang paling mungkin order lagi, dan apa yang bisa dilakukan untuk segmen yang paling rawan churn?**
+A Power BI dashboard built on a survey of online food delivery customers in Bengaluru. It answers one business question: **which customer segments are most likely to order again, and what can be done about the segments most at risk of churning?**
 
-**Tools:** Power BI Desktop, DAX, Python (pandas) untuk data cleaning (`build.py`)
-**Data:** [Online Food Ordering Dataset](https://www.kaggle.com/datasets/srisyra02/online-food-ordering-dataset), 388 respon survey, 13 kolom
+**Tools:** Power BI Desktop, DAX, Python (pandas) for data cleaning (`build.py`)
+**Data:** [Online Food Ordering Dataset](https://www.kaggle.com/datasets/srisyra02/online-food-ordering-dataset), 388 survey responses, 13 columns
 
 ![Overview](Overview.png)
 ![Who Orders Again](Who%20Orders%20Again.png)
@@ -12,17 +12,17 @@ Power BI dashboard yang menganalisis survey customer online food delivery di Ben
 
 ## 1. Data cleaning
 
-| Masalah | Penanganan |
+| Issue | Fix |
 |---|---|
-| Nilai `"Negative "` punya trailing space | Di-trim jadi `Negative` |
-| Kolom ke-14 tanpa nama | Dihapus, isinya identik dengan `Output` di semua baris |
-| Typo label (`Self Employeed`, `House wife`) | Dirapikan jadi `Self Employed`, `Housewife` |
-| 103 baris duplikat persis | Diberi flag `IsDuplicate`, semua measure exclude by default (285 respon unik) |
-| `Customer Type` ternyata 100% ditentukan oleh family size (1 = New, 2-3 = Regular, 4-6 = Frequent) | Tidak dipakai sebagai indikator perilaku order |
+| `"Negative "` has a trailing space | Trimmed to `Negative` |
+| Unnamed 14th column | Dropped, identical to `Output` in every row |
+| Label typos (`Self Employeed`, `House wife`) | Cleaned to `Self Employed`, `Housewife` |
+| 103 exact duplicate rows | Flagged with `IsDuplicate`, excluded from all measures by default (285 unique responses) |
+| `Customer Type` is 100% determined by family size (1 = New, 2-3 = Regular, 4-6 = Frequent) | Not used as an indicator of ordering behavior |
 
 ## 2. Data model
 
-Star schema dengan 1 fact table dan beberapa dimension:
+Star schema with one fact table and several dimensions:
 
 ```
 DimGender ──┐                 ┌── DimOccupation
@@ -30,58 +30,58 @@ DimMarital ─┤                 ├── DimIncome
 DimAgeGroup ┴─ FactResponse ──┴── DimEducation
 ```
 
-- Semua relasi 1:* single direction ke `FactResponse`
-- Kolom label di setiap dim di-sort pakai `SortOrder` (income, education, dan age group urut logis, bukan alfabet)
-- Semua measure ada di tabel `_Measures`, lihat `measures.dax`
+- All relationships are 1:* single direction into `FactResponse`
+- Label columns in each dimension are sorted by `SortOrder`, so income, education and age group follow a logical order instead of alphabetical
+- All measures live in the `_Measures` table, see `measures.dax`
 
-## 3. Halaman dashboard
+## 3. Dashboard pages
 
-Kedua halaman punya sidebar filter yang sama (Gender, Marital Status, Occupation, Education) dan slicer-nya di-sync, jadi filter yang dipilih di satu halaman ikut kebawa ke halaman lain.
+Both pages share the same filter sidebar (Gender, Marital Status, Occupation, Education). The slicers are synced, so a filter picked on one page carries over to the other.
 
 **Page 1: Overview**
-- KPI: Responses, Order Again Rate, Positive Rate, Avg Age
-- Bar: Responses by Occupation, by Age Group, by Monthly Income
-- Panel Key Insights & Actions: 3 temuan utama, masing-masing dengan angka, penjelasan, dan rekomendasi aksi
+- KPIs: Responses, Order Again Rate, Positive Rate, Avg Age
+- Bar charts: Responses by Occupation, by Age Group, by Monthly Income
+- Key Insights & Actions panel: 3 main findings, each with the numbers, what they mean, and a recommended action
 
 **Page 2: Who Orders Again?**
-- KPI: Responses, Order Again Rate, Order again rate kalau feedback positif vs negatif
-- Bar: Order Again Rate by Occupation, by Age Group, by Marital Status, by Monthly Income
+- KPIs: Responses, Order Again Rate, order again rate when feedback is positive vs negative
+- Bar charts: Order Again Rate by Occupation, by Age Group, by Marital Status, by Monthly Income
 
-## 4. Key insights (285 respon unik)
+## 4. Key insights (285 unique responses)
 
-1. **Baseline tinggi.** 76.1% customer order lagi dan 81.1% kasih feedback positif, jadi yang menarik adalah segmen yang jatuh di bawah rata-rata.
-2. **Student paling loyal.** Order again rate student 87.5%, Employee cuma 63.8%.
-3. **Feedback adalah sinyal churn terkuat.** Feedback positif: 87.4% order lagi. Feedback negatif: cuma 27.8%.
-4. **Usia 27-29 paling rawan churn (45.7%)**, jauh di bawah usia 21-23 (88.6%).
-5. **Married lebih jarang order lagi daripada single** (60.9% vs 84.7%).
-6. **Makin tinggi income, makin jarang order lagi.** No income 85.5%, sedangkan 25,001-50,000 cuma 63.5% dan di atas 50,000 63.8%.
+1. **High baseline.** 76.1% of customers order again and 81.1% give positive feedback, so the interesting part is the segments that fall below average.
+2. **Students are the most loyal.** Students reorder at 87.5%, employees at only 63.8%.
+3. **Feedback is the strongest churn signal.** Positive feedback: 87.4% order again. Negative feedback: only 27.8%.
+4. **Ages 27-29 are the most likely to churn (45.7%)**, far below ages 21-23 (88.6%).
+5. **Married customers reorder less than single ones** (60.9% vs 84.7%).
+6. **The higher the income, the lower the reorder rate.** No income: 85.5%. 25,001-50,000: 63.5%. Above 50,000: 63.8%.
 
-Poin 4 sampai 6 kemungkinan menggambarkan segmen yang sama: orang yang sudah kerja, menikah, dan punya lebih banyak alternatif (masak sendiri, dine-in).
+Points 4 to 6 likely describe the same group: people who are working, married, and have more alternatives (cooking at home, dining out).
 
-**Rekomendasi**
-- Tarik balik pekerja kantoran dengan promo makan siang di hari kerja.
-- Follow up customer dengan feedback negatif dalam 24 jam, karena ini sinyal churn paling jelas.
-- Targetkan usia 27-29, married, dan income menengah ke atas dengan paket keluarga dan loyalty points.
+**Recommendations**
+- Win back office workers with weekday lunch deals.
+- Follow up with customers who leave negative feedback within 24 hours, since it is the clearest churn signal.
+- Target ages 27-29, married, and higher-income customers with family-size bundles and loyalty points.
 
-**Keterbatasan:** sampel kecil (285 respon unik) dan didominasi student usia 21-26, jadi insight lebih tepat dibaca sebagai indikasi, bukan kesimpulan statistik.
+**Limitations:** the sample is small (285 unique responses) and dominated by students aged 21-26, so the insights should be read as indications, not statistical conclusions.
 
-## 5. File di repo
+## 5. Files in this repo
 
-| File | Isi |
+| File | Contents |
 |---|---|
-| `food-delivery.pbix` | Dashboard Power BI |
-| `data/online food delivery dataset.csv` | Raw data dari Kaggle, belum dibersihkan |
-| `build.py` | Script Python (pandas) untuk cleaning dan bikin star schema |
-| `online_food_model.xlsx` | Data yang sudah dibersihkan, dalam bentuk star schema |
-| `measures.dax` | Semua DAX measure |
-| `theme_teal.json` | Theme warna dashboard |
-| `icons/` | Icon untuk KPI card dan header |
+| `food-delivery.pbix` | Power BI dashboard |
+| `data/online food delivery dataset.csv` | Raw data from Kaggle, before cleaning |
+| `build.py` | Python (pandas) script that cleans the data and builds the star schema |
+| `online_food_model.xlsx` | Cleaned data as a star schema |
+| `measures.dax` | All DAX measures |
+| `theme_teal.json` | Dashboard color theme |
+| `icons/` | Icons for the KPI cards and header |
 
-## 6. Cara reproduce
+## 6. How to reproduce
 
-0. (Opsional) `pip install pandas openpyxl`, lalu `python build.py` untuk generate ulang `online_food_model.xlsx` dari raw data
-1. Get Data > Excel > `online_food_model.xlsx`, centang semua sheet kecuali README
-2. Model view: buat relasi dim ke `FactResponse` sesuai bagian 2 (matikan auto-detect relationship supaya kolom `SortOrder` antar dim tidak ikut terhubung)
-3. Set `Sort by column` = `SortOrder` di tiap dim
-4. Buat tabel `_Measures`, paste measure dari `measures.dax`
+0. (Optional) `pip install pandas openpyxl`, then `python build.py` to regenerate `online_food_model.xlsx` from the raw data
+1. Get Data > Excel > `online_food_model.xlsx`, select every sheet except README
+2. Model view: relate each dimension to `FactResponse` as in section 2 (turn off relationship auto-detect so the `SortOrder` columns don't get linked across dimensions)
+3. Set `Sort by column` = `SortOrder` in each dimension
+4. Create a `_Measures` table and paste the measures from `measures.dax`
 5. View > Themes > Browse for themes > `theme_teal.json`

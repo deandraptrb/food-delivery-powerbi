@@ -1,11 +1,11 @@
 """
-Data cleaning + star schema untuk Online Food Ordering Dataset.
+Data cleaning + star schema for the Online Food Ordering Dataset.
 
-Input : data/online food delivery dataset.csv (raw dari Kaggle)
-Output: online_food_model.xlsx (FactResponse + Dim tables), siap di-load ke Power BI
+Input : data/online food delivery dataset.csv (raw from Kaggle)
+Output: online_food_model.xlsx (FactResponse + Dim tables), ready to load into Power BI
 
-Jalankan dari folder repo:  python build.py
-Butuh: pandas, openpyxl
+Run from the repo folder:  python build.py
+Requires: pandas, openpyxl
 """
 from pathlib import Path
 import pandas as pd
@@ -16,13 +16,13 @@ RAW = ROOT / 'data' / 'online food delivery dataset.csv'
 OUT = ROOT / 'online_food_model.xlsx'
 
 # --- Cleaning ---
-# Kolom ke-14 tanpa nama isinya identik dengan Output, jadi dibuang
+# The unnamed 14th column is identical to Output, so it is dropped
 src=pd.read_csv(RAW).drop(columns='Unnamed: 13')
 df=src.copy()
 df['Feedback']=df['Feedback'].str.strip()
 df['Occupation']=df['Occupation'].replace({'Self Employeed':'Self Employed','House wife':'Housewife'})
 df['Monthly Income']=df['Monthly Income'].replace({'Below Rs.10000':'Below 10,000','10001 to 25000':'10,001 - 25,000','25001 to 50000':'25,001 - 50,000','More than 50000':'Above 50,000'})
-# Duplikat persis di-flag, bukan dihapus (measure di Power BI exclude IsDuplicate = 1)
+# Exact duplicates are flagged, not deleted (Power BI measures exclude IsDuplicate = 1)
 df.insert(0,'RespondentID',range(1,len(df)+1))
 df['IsDuplicate']=df.drop(columns='RespondentID').duplicated().map({True:1,False:0})
 bins=[0,20,23,26,29,40]; labels=['18-20','21-23','24-26','27-29','30+']

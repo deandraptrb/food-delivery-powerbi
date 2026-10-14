@@ -1,8 +1,8 @@
 // ============================================================
 // Online Food Ordering - DAX measures
-// Taruh semua measure di satu tabel kosong "_Measures"
-// (Home > Enter data > nama tabel _Measures > Load)
-// Semua measure default exclude baris duplikat (IsDuplicate = 1)
+// Put all measures in one empty table called "_Measures"
+// (Home > Enter data > name the table _Measures > Load)
+// All measures exclude duplicate rows (IsDuplicate = 1) by default
 // ============================================================
 
 // ---------- Base ----------
@@ -41,7 +41,7 @@ Order Again vs Avg (pp) =
 Positive vs Avg (pp) =
 ( [Positive Rate] - [Overall Positive Rate] ) * 100
 
-// Dipakai buat conditional formatting warna bar (di atas / di bawah rata-rata)
+// Used for conditional bar color (above / below average)
 Order Again Color =
 IF ( [Order Again Rate] >= [Overall Order Again Rate], "#2E6F73", "#B0BBBF" )
 
@@ -55,7 +55,7 @@ CALCULATE ( [Order Again Rate], FactResponse[Feedback] = "Negative" )
 Feedback Gap (pp) =
 ( [Order Again Rate | Positive] - [Order Again Rate | Negative] ) * 100
 
-// Customer yang kasih feedback negatif tapi tetap order lagi
+// Customers who gave negative feedback but still ordered again
 Unhappy but Loyal =
 CALCULATE (
     [Responses],
@@ -63,7 +63,7 @@ CALCULATE (
     FactResponse[OrderAgain] = "Yes"
 )
 
-// Customer puas tapi tidak order lagi -> peluang win-back
+// Satisfied customers who did not order again -> win-back opportunity
 Happy but Lost =
 CALCULATE (
     [Responses],
@@ -88,11 +88,11 @@ IF (
     RANKX ( ALLSELECTED ( DimOccupation[Occupation] ), [Order Again Rate], , DESC, DENSE )
 )
 
-// Segmen dengan sample kecil (< 15 respon) ditandai biar insight-nya fair
+// Flags segments with a small sample (< 15 responses) so insights stay fair
 Low Sample Flag =
 IF ( [Responses] < 15, "Low sample", BLANK () )
 
-// ---------- Dynamic text buat card / subtitle ----------
+// ---------- Dynamic text for cards / subtitles ----------
 Headline Order Again =
 VAR r = [Order Again Rate]
 VAR diff = [Order Again vs Avg (pp)]
@@ -106,12 +106,3 @@ IF (
     CONCATENATEX ( VALUES ( DimOccupation[Occupation] ), DimOccupation[Occupation], ", " ),
     "All occupations"
 )
-
-// ============================================================
-// Field parameter (Modeling > New parameter > Fields)
-// Nama: Segment By
-// Isi: DimOccupation[Occupation], DimIncome[Monthly Income],
-//      DimMaritalStatus[Marital Status], DimEducation[Education],
-//      DimAgeGroup[Age Group], DimGender[Gender], FactResponse[FamilySize]
-// Pakai di axis bar chart "Order Again Rate by <segment>" + slicer-nya
-// ============================================================
